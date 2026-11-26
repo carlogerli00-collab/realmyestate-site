@@ -819,16 +819,22 @@ small { font-size: calc(15px * var(--ts)); }
 .seal .l2 { animation-delay: -2.3s; }
 @keyframes investors-spark { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 .investors h2 { margin-top: 44px; font-size: calc(30px * var(--ts)); }
-.investors p { margin-top: 7px; font-size: calc(17px * var(--ts)); line-height: 1.4; color: rgba(29, 24, 18, .62); }
-.investors .btn { display: inline-flex; width: auto; min-height: 54px; margin-top: 22px; padding: 7px 22px 7px 24px; font-size: calc(17px * var(--ts)); }
+.investors .invite > p { margin-top: 7px; font-size: calc(17px * var(--ts)); line-height: 1.4; color: rgba(29, 24, 18, .62); }
+/* 26 Nov 2026 (Danilo: «Questo non funziona»): the door was a mailto link, and on a computer without a mail program
+   it did nothing. Now it asks for the email right there, as Hotel News does, and the page sends it (site.js) */
+.investors .field { max-width: 340px; margin: 22px auto 0; text-align: left; }
+.investors .field .btn { display: flex; width: 100%; min-height: 54px; margin-top: 10px; padding: 7px 22px 7px 24px; font-size: calc(17px * var(--ts)); }
+.investors .field .legal, .investors .field .err { text-align: center; }
+.investors .field .legal a { white-space: nowrap; }
+.investors .field .done { justify-content: center; }
 .investors .btn .i { width: 20px; height: 20px; }
 /* the words under the letter: they rise by translate, so the button keeps its transform for the press; after the
    landing (.45 s) when they arrive with it, the door last */
 .invite > h2, .invite > p { transition: opacity .7s var(--out) .45s, translate .7s var(--out) .45s; }
 .invite > p { transition-delay: .55s; }
-.invite > .btn { transition: opacity .7s var(--out) .7s, translate .7s var(--out) .7s, transform .2s var(--out), box-shadow .2s var(--out); }
+.invite > .field { transition: opacity .7s var(--out) .7s, translate .7s var(--out) .7s; }
 .invite.rdy:not(.go) > * { opacity: 0; translate: 0 14px; transition: opacity .3s var(--out), translate .3s var(--out); }
-.invite.go > .btn.shine::after, .invite.go > .btn.shine .i { animation-delay: 1.5s; }
+.invite.go .btn.shine::after, .invite.go .btn.shine .i { animation-delay: 1.5s; }
 
 /* ───────── footer: the address, big, and a map that shows where it is ─────────
    Round 3: «I nostri uffici» with a map and a pin; the company's data small at the bottom.
@@ -1202,10 +1208,10 @@ body.desktop { width: 1440px; min-height: 900px; font-size: calc(20px * var(--ts
 .desktop .env { --fly: 51px -97px; --fly-s: 1.15; --slide: translate(13px, -21px) rotate(.4deg); width: 420px; height: 274px; } /* the toss from further: the letter is bigger, the screen wider */
 .desktop .seal { width: 124px; height: 124px; margin: -64px 0 0 -60px; }
 .desktop .investors h2 { margin-top: 60px; font-size: calc(46px * var(--ts)); } /* round 10: «un po' più grande» */
-.desktop .investors p { margin-top: 10px; font-size: calc(21px * var(--ts)); }
-.desktop .investors .btn { min-height: 56px; margin: 30px 0 0; padding: 8px 24px 8px 26px; font-size: calc(18px * var(--ts)); } /* the size of danilo's call: one button, two colours */
+.desktop .investors .invite > p { margin-top: 10px; font-size: calc(21px * var(--ts)); }
+.desktop .investors .field { width: 540px; max-width: 100%; margin: 34px auto 0; }
+.desktop .investors .field .btn { min-height: 56px; margin: 0; padding: 8px 24px 8px 26px; font-size: calc(18px * var(--ts)); } /* the size of danilo's call: one button, two colours */
 .desktop .investors .btn .i { width: 21px; height: 21px; }
-.desktop .invite > .btn { transition: opacity .7s var(--out) .7s, translate .7s var(--out) .7s, transform .2s var(--out), box-shadow .2s var(--out); } /* design.css's, over the desktop's own button transition */
 
 /* ───────── footer: the offices on the left, the map on the right, the company's data in one small line ───────── */
 .desktop .foot { display: grid; grid-template-columns: 460px 1fr; column-gap: 70px; align-items: center; padding: calc(110px * var(--sp)) 80px calc(44px * var(--sp)); }
@@ -1375,8 +1381,8 @@ body.desktop { width: 1440px; min-height: 900px; font-size: calc(20px * var(--ts
   <div class="stage">
     <div class="tell">
       <div class="says">
-        <div class="cap c1 an" data-range="1 39.8"><p class="eyebrow">Perché non fate pubblicità?</p><p class="big">In vetrina,<br>tutti sanno che vendi.</p><p class="why">Annunci, intermediari e voci di mercato<br>girano senza nessun controllo.</p></div>
-        <div class="cap c2 an" data-range="34 74.4"><p class="big">Il mercato pensa<br>che tu abbia fretta.</p><p class="why">O che l'albergo sia in difficoltà.<br>E chi compra tratta al ribasso.</p></div>
+        <div class="cap c1 an" data-range="1 39.8"><p class="eyebrow">Perché non facciamo pubblicità al tuo hotel?</p><p class="big">In vetrina o sui portali,<br>tutti sanno che vendi.</p><p class="why">Annunci, intermediari e voci di mercato<br>girano senza nessun controllo.</p></div>
+        <div class="cap c2 an" data-range="34 74.4"><p class="big">Ti scrivono<br>moltissimi perditempo.</p><p class="why">Avrai a che fare con intermediari improvvisati<br>o potenziali acquirenti senza i fondi necessari.</p></div>
         <div class="fin an" data-range="68 82"><p class="big">Ogni mese in vendita<br>pesa sul prezzo.</p><p class="why">Se resta a lungo sul mercato,<br>sembra un albergo che nessuno vuole.</p></div>
       </div>
     </div>
@@ -1393,12 +1399,12 @@ body.desktop { width: 1440px; min-height: 900px; font-size: calc(20px * var(--ts
 <section data-section="faq" class="faq">
   <h2 class="rise an" data-view="entry 0 80">Le domande<br>di chi vende</h2>
   <div class="qs">
-    <div class="q"><input type="checkbox" id="faq-1" checked><label for="faq-1">E se non voglio che si sappia?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Nessun annuncio sui portali: il tuo albergo lo vedono solo investitori selezionati.</p></div></div></div>
-    <div class="q"><input type="checkbox" id="faq-2"><label for="faq-2">Devo firmare un'esclusiva?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>No. La gara a offerta migliorativa non la impone.</p></div></div></div>
-    <div class="q"><input type="checkbox" id="faq-3"><label for="faq-3">Sono obbligato a vendere?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>No. Guardi le offerte e decidi tu, anche di non accettarne nessuna.</p></div></div></div>
-    <div class="q"><input type="checkbox" id="faq-4"><label for="faq-4">Quanto costa?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Il primo colloquio lo offriamo noi. Il compenso te lo diciamo lì, prima di ogni impegno.</p></div></div></div>
-    <div class="q"><input type="checkbox" id="faq-5"><label for="faq-5">Il mio albergo è piccolo e fuori&nbsp;mano. Interessa?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Può: oggi anche i grandi gruppi guardano a centri minori, entroterra e alberghi indipendenti.<small>Fonte: Financial Times, da LaMiaFinanza, ott 2026</small></p></div></div></div>
-    <div class="q"><input type="checkbox" id="faq-6"><label for="faq-6">Ho già un annuncio in giro. È&nbsp;tardi?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>No. Ma prima si ferma l'esposizione, meglio è.</p></div></div></div>
+    <div class="q"><input type="checkbox" id="faq-1" checked><label for="faq-1">Garantite che le trattative saranno riservate?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Nel nostro modulo di incarico puoi vietare l'uso di portali immobiliari (noi lo consigliamo vivamente), lasciandoci la possibilità di dare comunicazione della tua vendita solo ai nostri investitori diretti o ai mediatori qualificatissimi della nostra rete di relazioni dirette.</p></div></div></div>
+    <div class="q"><input type="checkbox" id="faq-2"><label for="faq-2">Richiedete un'esclusiva?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Quando facciamo una gara a offerta migliorativa non è necessario firmare esclusive. La prova del nostro lavoro sta nei nostri strumenti di tracciamento e nella nostra directory di contatti diretti.</p></div></div></div>
+    <div class="q"><input type="checkbox" id="faq-3"><label for="faq-3">Sono obbligato ad accettare le offerte che mi verranno&nbsp;proposte?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Nella gara a offerta migliorativa non sarai obbligato ad accettare nessuna proposta irrevocabile di acquisto che riceverai, se non la riterrai adeguata.</p><p>Puoi sempre decidere di affidarci un incarico di mediazione tradizionale: in questo caso ci accorderemo nei termini di legge.</p></div></div></div>
+    <div class="q"><input type="checkbox" id="faq-4"><label for="faq-4">Ci sono dei costi previsti per la vostra intermediazione?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Il primo colloquio è sempre gratuito. I costi della nostra intermediazione li conoscerai quando avremo capito la tipologia della tua operazione e ti faremo una proposta scritta di incarico.</p></div></div></div>
+    <div class="q"><input type="checkbox" id="faq-5"><label for="faq-5">Il mio albergo è piccolo e fuori&nbsp;mano: può&nbsp;interessare?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Può: oggi anche i grandi gruppi guardano a centri minori, entroterra e alberghi indipendenti.<small>Fonte: Financial Times, da LaMiaFinanza, ott 2026</small></p><p>In ogni caso siamo sempre in grado di trovare il miglior investitore per te.</p></div></div></div>
+    <div class="q"><input type="checkbox" id="faq-6"><label for="faq-6">Il mio albergo è già in vendita da tempo per passaparola ed è stato anche pubblicato sui portali. È&nbsp;troppo tardi per lavorare con&nbsp;voi?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></label><div class="a"><div><p>Solitamente no, ma prima si ferma questa pubblicità indiscriminata e non specializzata, meglio è.</p></div></div></div>
   </div>
 </section>
 
@@ -1469,7 +1475,17 @@ body.desktop { width: 1440px; min-height: 900px; font-size: calc(20px * var(--ts
   <div class="env" data-view-on="rdy entry -20; go contain 10" role="img" aria-label="Una busta chiusa con un sigillo di ceralacca RealMyEstate."><i class="body"></i><i class="fold l"></i><i class="fold r"></i><i class="fold b"></i><i class="lid"></i>
   <div class="seal" aria-hidden="true"><img src="/f/assets/ceralacca-grande.webp?v=1794668907583.3245-16996" width="176" height="176" alt="" loading="lazy"><img class="lu" src="/f/assets/ceralacca-luce-1-grande.webp?v=1794668908507.1262-3264" width="176" height="176" alt="" loading="lazy"><img class="lu l2" src="/f/assets/ceralacca-luce-2-grande.webp?v=1794668909415.0952-2724" width="176" height="176" alt="" loading="lazy"></div></div>
   <div class="invite" data-view-on="rdy entry -20; go entry 70"><h2>Sei un investitore?</h2><p>Ricevi le nostre presentazioni riservate.</p>
-  <a class="btn leather shine" href="mailto:marketing@bookingmyhotel.it?subject=Network%20investitori">Entra nel network<svg class="i" aria-hidden="true"><use href="#i-right"/></svg></a></div>
+  <div class="field net">
+    <input class="sent sr" type="checkbox" id="sent-net" tabindex="-1" aria-hidden="true">
+    <div class="fields">
+      <label class="sr" for="net-email">La tua email</label>
+      <input id="net-email" type="email" inputmode="email" autocomplete="email" placeholder="La tua email">
+      <label class="btn leather shine" for="sent-net">Entra nel network<svg class="i" aria-hidden="true"><use href="#i-right"/></svg></label>
+      <p class="legal">Usiamo la tua email solo per le presentazioni. <a href="/privacy/">Informativa privacy</a></p>
+      <p class="err" hidden>Controlla l'indirizzo email.</p>
+    </div>
+    <p class="done"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Fatto. Ti scrive Danilo Molaschi.</p>
+  </div></div>
 </section>
 
 <section data-section="footer" class="foot" id="uffici">

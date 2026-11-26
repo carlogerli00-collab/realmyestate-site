@@ -19,6 +19,14 @@
       if (!(navigator.sendBeacon && navigator.sendBeacon(API + '/hit', blob))) fetch(API + '/hit', { method: 'POST', body: body, keepalive: true }).catch(function () {})
     } catch (e) {}
   }
+  // links to other sites (LinkedIn, Calendly) open in a new tab, so the page stays where the visitor left it
+  // (26 Nov 2026, Danilo: «Meglio se apre una nuova scheda»)
+  function externalLinks() {
+    document.querySelectorAll('a[href^="http"]').forEach(function (a) {
+      if (a.hostname && a.hostname !== location.hostname) { a.target = '_blank'; a.rel = 'noopener' }
+    })
+  }
+
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href]')
     if (!a) return
@@ -159,6 +167,31 @@
     }, true)
   }
 
+  // «Entra nel network»: the investor's email, sent to Danilo as a message (it was a mailto link, dead on a computer
+  // without a mail program)
+  function setupNetwork() {
+    var box = document.getElementById('sent-net')
+    if (!box) return
+    var wrap = box.parentNode, send = wrap.querySelector('label[for="sent-net"]'), input = wrap.querySelector('input[type="email"]'), err = wrap.querySelector('.err')
+    var busy = false
+    var go = function (e) {
+      if (e) e.preventDefault()
+      if (busy) return
+      show(err, false)
+      var email = (input.value || '').trim()
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { show(err, true); input.focus(); return }
+      busy = true
+      send.style.opacity = '.6'
+      post('/message', { kind: 'network', nome: '', contatto: email, albergo: '', messaggio: 'Vuole entrare nel network degli investitori e ricevere le presentazioni riservate.', page: screenKind }).then(function (r) {
+        if (!r.ok) throw new Error('network')
+        box.checked = true
+        track('investor')
+      }).catch(function () { show(err, true) }).then(function () { busy = false; send.style.opacity = '' })
+    }
+    send.addEventListener('click', go, true)
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(e) })
+  }
+
   function setupNews() {
     var box = document.getElementById('sent-news')
     if (!box) return
@@ -184,8 +217,10 @@
 
   function start() {
     track('view')
+    externalLinks()
     loadCalendar()
     setupMessage()
+    setupNetwork()
     setupNews()
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start)
