@@ -1,23 +1,105 @@
 // What the published page does beyond the Atelier's design (added by build.mjs, not part of the Atelier screens):
 // the calendar card shows Danilo's real free times from Calendly, the two forms really send, and visits are counted
-// without cookies or stored identifiers. Server: online/api (Cloudflare Worker).
+// without cookies or stored identifiers. Server: online/api (Cloudflare Worker); the numbers: its private /numeri page.
 (function () {
   'use strict'
+  if (window.__rmeAway) return // the phone/desktop chooser is already sending this visitor to the other page
   var API = 'https://realmyestate-api.carlogerli00.workers.dev'
   var CALENDLY = 'https://calendly.com/bookingmyhotel/meeting-con-danilo-molaschi'
   var MAIL = 'marketing@bookingmyhotel.it'
   var TZ = 'Europe/Rome'
+  var HOSTS = ['realmyestate.it', 'www.realmyestate.it']
   var screenKind = /\/d\//.test(location.pathname) ? 'desktop' : 'phone'
   var visit = Math.random().toString(36).slice(2, 12) // lives only in this page's memory
 
   // ---- visits and clicks -------------------------------------------------------------------------------------------
-  function track(ev) {
+  // Counted only on realmyestate.it itself (not in previews), never for automated browsers, and not on the devices of
+  // Ammiraglio and Danilo: opening realmyestate.it/?noi once marks that browser as ours (?noi=no undoes it).
+  var params = new URLSearchParams(location.search)
+  var ours = false, ourNote = ''
+  try {
+    if (params.has('noi')) {
+      if (params.get('noi') === 'no') { localStorage.removeItem('rme-noi'); ourNote = 'Le visite da questo browser tornano a essere contate.' }
+      else { localStorage.setItem('rme-noi', '1'); ourNote = 'Fatto: le visite da questo browser non vengono più contate.' }
+    }
+    ours = localStorage.getItem('rme-noi') === '1'
+  } catch (e) {}
+  var counting = HOSTS.indexOf(location.hostname) >= 0 && !navigator.webdriver && !ours
+
+  // Where the visit comes from. The chooser hands over the referrer of the page it left (otherwise every computer
+  // visit would seem to come from realmyestate.it itself: the case until 27 Nov 2026), and the old address
+  // bookingmyhotel.it passes on the site its visitor came from as ?r=<host>.
+  var sameSite = function (u) { try { return HOSTS.indexOf(new URL(u).hostname) >= 0 } catch (e) { return false } }
+  var ref = document.referrer, via = ''
+  try {
+    var kept = sessionStorage.getItem('rme-ref')
+    sessionStorage.removeItem('rme-ref')
+    if (kept !== null && sameSite(ref)) ref = kept
+  } catch (e) {}
+  if (/^https?:\/\/(www\.)?bookingmyhotel\.it(\/|$)/.test(ref) || params.has('r')) {
+    via = 'bookingmyhotel.it'
+    ref = /^[a-z0-9.-]+$/i.test(params.get('r') || '') ? 'https://' + params.get('r') + '/' : ''
+  }
+  var campaign = { us: params.get('utm_source') || '', um: params.get('utm_medium') || '', uc: params.get('utm_campaign') || '' }
+  // the address bar keeps only the page, so a link copied from it doesn't pass LinkedIn's tag on to someone else
+  try {
+    var clean = new URLSearchParams(location.search)
+    ;['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'r', 'noi'].forEach(function (k) { clean.delete(k) })
+    var qs = clean.toString()
+    if (qs !== location.search.replace(/^\?/, '')) history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash)
+  } catch (e) {}
+
+  function track(ev, detail) {
+    if (!counting) return
     try {
-      var q = new URLSearchParams(location.search)
-      var body = JSON.stringify({ ev: ev, path: location.pathname, ref: ev === 'view' ? document.referrer : '', us: q.get('utm_source') || '', um: q.get('utm_medium') || '', uc: q.get('utm_campaign') || '', screen: screenKind, v: visit })
+      var first = ev === 'view'
+      var body = JSON.stringify({ ev: ev, d: detail || '', path: location.pathname, ref: first ? ref : '', via: first ? via : '', us: campaign.us, um: campaign.um, uc: campaign.uc, screen: screenKind, v: visit })
       var blob = new Blob([body], { type: 'text/plain' })
       if (!(navigator.sendBeacon && navigator.sendBeacon(API + '/hit', blob))) fetch(API + '/hit', { method: 'POST', body: body, keepalive: true }).catch(function () {})
     } catch (e) {}
+  }
+
+  // how far the visitor reads: each section once, when its top comes up to the middle of the screen or most of it
+  // is on screen (the short ones at the very end)
+  function watchSections() {
+    if (!counting || !('IntersectionObserver' in window)) return
+    var seen = {}
+    var mark = function (entries) {
+      entries.forEach(function (e) {
+        var s = e.target.getAttribute('data-section')
+        if (e.isIntersecting && !seen[s]) { seen[s] = 1; track('section', s) }
+      })
+    }
+    var half = new IntersectionObserver(mark, { rootMargin: '0px 0px -50% 0px' })
+    var most = new IntersectionObserver(mark, { threshold: 0.6 })
+    document.querySelectorAll('[data-section]').forEach(function (el) {
+      if (el.getAttribute('data-section') === 'hero') return // everyone sees it: that is the visit itself
+      half.observe(el)
+      most.observe(el)
+    })
+  }
+
+  // how long the page stays in front of the visitor (only while it is on screen), sent when they leave or switch away
+  function watchTime() {
+    if (!counting) return
+    var shown = 0, since = document.visibilityState === 'visible' ? Date.now() : 0, sent = 0
+    var flush = function () {
+      if (since) { shown += Date.now() - since; since = 0 }
+      var s = Math.min(Math.round(shown / 1000), 3600)
+      if (s > sent) { sent = s; track('time', String(s)) }
+    }
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); else since = Date.now() })
+    window.addEventListener('pagehide', flush)
+  }
+
+  function noteOurs() {
+    if (!ourNote) return
+    var el = document.createElement('div')
+    el.setAttribute('role', 'status')
+    el.textContent = ourNote
+    el.style.cssText = 'position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:2147483647;width:max-content;max-width:calc(100% - 32px);padding:12px 18px;border-radius:10px;background:#1D1812;color:#FAF6EE;font:500 15px/1.35 Figtree,system-ui,sans-serif;text-align:center;box-shadow:0 14px 34px rgba(29,24,18,.28);transition:opacity .5s'
+    document.body.appendChild(el)
+    setTimeout(function () { el.style.opacity = '0'; setTimeout(function () { el.remove() }, 600) }, 4200)
   }
   // links to other sites (LinkedIn, Calendly) open in a new tab, so the page stays where the visitor left it
   // (26 Nov 2026, Danilo: «Meglio se apre una nuova scheda»)
@@ -217,6 +299,9 @@
 
   function start() {
     track('view')
+    watchSections()
+    watchTime()
+    noteOurs()
     externalLinks()
     loadCalendar()
     setupMessage()
